@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    
+    
+    <title>Proyecto 1 Compiladores 2</title>
+    <link rel="stylesheet" href="style/styles.css" />
+  </head>
+  <body>
+    
+    <h1 class="titulo">
+      Lenguaje OakLand
+    </h1>
+
+    
+    
+    <div class="AreadeTrabajo">
+      
+     
+      <div class="div20">
+        <input type="file" id="archivo" accept=".oak" style="display: none;">
+        <button id="abrirCosas"><i class="fas fa-folder-open"></i> Abrir Archivo</button>
+        <button id="btnGuardar"><i class="fas fa-download"></i> Guardar Archivo</button>
+        <button id="aje"><i class="fas fa-play" ></i> Ejecutar Archivo</button>
+        <button><i class="fas fa-exclamation-triangle"></i> Reporte De Errores</button>
+        <button><i class="fas fa-table"></i> Tabla de Simbolo</button>
+      </div>
+      <div id="editor1" class="entrada"></div>
+    </div>
+    
+<br>
+    <div class="consola">
+      <div class="rotulo">
+        <h2 style="text-align: center;color:  rgb(22, 67, 230);">Consola:</h2>
+      </div>
+      <div class="cuerpo">
+        <textarea id="salida" class="salida" readonly>Consola de Salida.</textarea>
+
+      </div>
+    </div>
+    
+    
+    
+
+    <div class="tabla">
+      <h1 class="titulo">Tabla de Simbolos</h1>
+      <div id="tabSim" class="tablaSimbolos"></div>
+    </div>
+
+    <div class="erroesReporte">
+      <h1 class="titulo">Reporte de Errores</h1>
+      <div id="tabla-errores"></div>
+    </div>
+
+    <script src="/App/app.js"></script>
+    <script src="/App/script.js"></script>
+    <script type="module" src="index.js"></script>
+  </body>
+</html>
