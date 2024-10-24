@@ -41,6 +41,242 @@ export const concatString = (code) => {
     code.addi(r.HP, r.HP, 1)
 }
 
-export const builtins = {
-    concatString: concatString
+//MENOr o Igual
+/**
+ * 
+ * @param {Generador} code 
+ */
+export const lessOrEqual = (code) => {
+    
+    //T0 izq
+    //T1 der
+    const trueLabel = code.getLabel()
+    const endLabel = code.getLabel()
+
+    code.bge(r.T0, r.T1, trueLabel) // der >= izq
+    code.li(r.T0, 0)
+    code.push(r.T0)
+    code.j(endLabel)
+    code.addLabel(trueLabel)
+    code.li(r.T0, 1)
+    code.push(r.T0)
+    code.addLabel(endLabel)
 }
+//MEnor
+/**
+ * 
+ * @param {Generador} code 
+ */
+export const lessThanInt = (code) => {
+    
+    const trueLabel = code.getLabel()
+    const endLabel = code.getLabel()
+
+    code.bge(r.T0, r.T1, trueLabel) 
+    code.li(r.T0, 1)                
+    code.push(r.T0)
+    code.j(endLabel)
+    code.addLabel(trueLabel)
+    code.li(r.T0, 0)                
+    code.push(r.T0)
+    code.addLabel(endLabel)
+}
+
+//Igual
+/**
+ * 
+ * @param {Generador} code 
+ */
+export const equal = (code) => {
+    
+    const trueLabel = code.getLabel()
+    const endLabel = code.getLabel()
+
+    code.bne(r.T0, r.T1, trueLabel) // der != izq
+    code.li(r.T0, 1)                // if true: t0 = 1
+    code.push(r.T0)
+    code.j(endLabel)
+    code.addLabel(trueLabel)
+    code.li(r.T0, 0)                // else: t0 = 0
+    code.push(r.T0)
+    code.addLabel(endLabel)
+}
+
+//No igual
+/**
+ * 
+ * @param {Generador} code 
+ */
+export const notEqualInt = (code) => {
+    
+    const trueLabel = code.getLabel()
+    const endLabel = code.getLabel()
+
+    code.beq(r.T0, r.T1, trueLabel) // if (der == izq), salto a trueLabel
+    code.li(r.T0, 1)                // t0 = 1 (si es true, son diferentes)
+    code.push(r.T0)
+    code.j(endLabel)
+    code.addLabel(trueLabel)
+    code.li(r.T0, 0)                // t0 = 0 (si es false, son iguales)
+    code.push(r.T0)
+    code.addLabel(endLabel)
+}
+
+//mayor o igual
+/**
+ * 
+ * @param {Generador} code 
+ */
+export const greaterOrEqualInt = (code) => {
+   
+    const trueLabel = code.getLabel()
+    const endLabel = code.getLabel()
+
+    code.blt(r.T0, r.T1, trueLabel) // if (der < izq), salto a trueLabel
+    code.li(r.T0, 1)                // t0 = 1 (si es true)
+    code.push(r.T0)
+    code.j(endLabel)
+    code.addLabel(trueLabel)
+    code.li(r.T0, 0)                // t0 = 0 (si es false)
+    code.push(r.T0)
+    code.addLabel(endLabel)
+}
+//Mayor 
+/**
+ * 
+ * @param {Generador} code 
+ */
+export const greaterThanInt = (code) => {
+    
+    const trueLabel = code.getLabel()
+    const endLabel = code.getLabel()
+
+    code.ble(r.T0, r.T1, trueLabel) // if (der <= izq), salto a trueLabel
+    code.li(r.T0, 1)                // t0 = 1 (si es true)
+    code.push(r.T0)
+    code.j(endLabel)
+    code.addLabel(trueLabel)
+    code.li(r.T0, 0)                // t0 = 0 (si es false)
+    code.push(r.T0)
+    code.addLabel(endLabel)
+}
+
+
+//float ------------------------------------------------------------------
+//Menor
+/**
+ * 
+ * @param {Generador} code 
+ */
+export const lessThanFloat = (code) => {
+    
+    const trueLabel = code.getLabel()
+    const endLabel = code.getLabel()
+
+    code.fge(r.F0, r.F1, trueLabel) 
+    code.li(r.T0, 1)                
+    code.push(r.T0)
+    code.j(endLabel)
+    code.addLabel(trueLabel)
+    code.li(r.T0, 0)                
+    code.push(r.T0)
+    code.addLabel(endLabel)
+}
+
+//Igual
+/**
+ * 
+ * @param {Generador} code 
+ */
+export const equalFloat = (code) => {
+    
+    const trueLabel = code.getLabel()
+    const endLabel = code.getLabel()
+
+    code.fneq(r.F0, r.F1, trueLabel) // der != izq (float comparison)
+    code.li(r.T0, 1)                 // if true: t0 = 1
+    code.push(r.T0)
+    code.j(endLabel)
+    code.addLabel(trueLabel)
+    code.li(r.T0, 0)                 // else: t0 = 0
+    code.push(r.T0)
+    code.addLabel(endLabel)
+}
+//No Igual
+/**
+ * 
+ * @param {Generador} code 
+ */
+export const notEqualFloat = (code) => {
+    
+    const trueLabel = code.getLabel()
+    const endLabel = code.getLabel()
+
+    code.feq(r.F0, r.F1, trueLabel) // if (der == izq en floats)
+    code.li(r.T0, 1)                // t0 = 1 (si es true, son diferentes)
+    code.push(r.T0)
+    code.j(endLabel)
+    code.addLabel(trueLabel)
+    code.li(r.T0, 0)                // t0 = 0 (si es false, son iguales)
+    code.push(r.T0)
+    code.addLabel(endLabel)
+}
+//mayor o igual
+/**
+ * 
+ * @param {Generador} code 
+ */
+export const greaterOrEqualFloat = (code) => {
+
+    const trueLabel = code.getLabel()
+    const endLabel = code.getLabel()
+
+    code.flt(r.F0, r.F1, trueLabel) // if (der < izq en floats)
+    code.li(r.T0, 1)                // t0 = 1 (si es true)
+    code.push(r.T0)
+    code.j(endLabel)
+    code.addLabel(trueLabel)
+    code.li(r.T0, 0)                // t0 = 0 (si es false)
+    code.push(r.T0)
+    code.addLabel(endLabel)
+}
+//mayor
+/**
+ * 
+ * @param {Generador} code 
+ */
+export const greaterThanFloat = (code) => {
+    
+    const trueLabel = code.getLabel()
+    const endLabel = code.getLabel()
+
+    code.fle(r.F0, r.F1, trueLabel) // if (der <= izq en floats)
+    code.li(r.T0, 1)                // t0 = 1 (si es true)
+    code.push(r.T0)
+    code.j(endLabel)
+    code.addLabel(trueLabel)
+    code.li(r.T0, 0)                // t0 = 0 (si es false)
+    code.push(r.T0)
+    code.addLabel(endLabel)
+}
+
+
+export const builtins = {
+    concatString,
+    lessOrEqual,//menor o igual
+    equal, //igual
+    equalFloat,//igual fl
+    notEqualInt, //no igual int 
+    notEqualFloat, // no igual f
+    greaterThanInt, //mayor que int,
+    greaterThanFloat, //mayor que flotante, 
+    lessThanInt, //menor que int, 
+    lessThanFloat, //menor que flotante,
+    greaterOrEqualFloat,//mayor o igual f
+    greaterOrEqualInt,//mayor o igual int
+
+    
+}
+
+     
+   

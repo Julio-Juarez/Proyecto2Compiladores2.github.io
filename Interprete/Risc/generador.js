@@ -1,5 +1,5 @@
 import { registers as r } from "./constantes.js";
-import { stringTo1ByteArray } from "./utils.js";
+import { stringTo1ByteArray, numberToF32 } from "./utils.js";
 import { builtins } from "./builtins.js";
 
 class Instruction {
@@ -119,6 +119,13 @@ export class Generador {
         this.sw(rd, r.SP)
     }
 
+    pushFloat(rd = r.T0) {
+        this.addi(r.SP, r.SP, -4) // 4 bytes = 32 bits
+        this.fsw(rd, r.SP)
+    }
+
+
+
     pop(rd = r.T0) {
         this.lw(rd, r.SP)
         this.addi(r.SP, r.SP, 4)
@@ -227,7 +234,7 @@ export class Generador {
                 break;
             case 'float':
                 const ieee754= numberToF32(object.valor)
-                this.li(r.T0,object.valor);
+                this.li(r.T0,ieee754);
                 this.push(r.T0);
                 length=4;
                 break;
@@ -236,12 +243,21 @@ export class Generador {
         }
 
         //console.log(this.profundidad +" esto se va meter");
+        console.log(object.tipo);
 
         this.pushObject({ tipo: object.tipo, length, profundidad:this.profundidad });
     }
 
     pushObject(object) {
-        this.objectStack.push(object);
+        this.objectStack.push({
+            ...object,
+            profundidad: this.profundidad,
+        });
+    }
+
+    popFloat(rd = r.FT0) {
+        this.flw(rd, r.SP)
+        this.addi(r.SP, r.SP, 4)
     }
 
     popObject(rd = r.T0) {
@@ -258,11 +274,22 @@ export class Generador {
                 //this.addi(rd, r.SP, 0);
                 //this.addi(r.SP, r.SP, object.length);
                 break;
+            case 'boolean':
+                this.pop(rd);
+                break;
+            case 'float':
+                this.popFloat(rd);
+                break;
             default:
                 break;
         }
+        
 
         return object;
+    }
+
+    getTopObject() {
+        return this.objectStack[this.objectStack.length - 1];
     }
 
     // !Manejo de Entornos
@@ -328,6 +355,49 @@ export class Generador {
 main:
     ${this.instrucciones.map(instruccion => `${instruccion}`).join('\n')}
 `
+    }
+
+
+    //Float  ----------------------------
+    fadd(rd, rs1, rs2) {
+        this.instrucciones.push(new Instruction('fadd.s', rd, rs1, rs2))
+    }
+
+    fsub(rd, rs1, rs2) {
+        this.instrucciones.push(new Instruction('fsub.s', rd, rs1, rs2))
+    }
+
+    fmul(rd, rs1, rs2) {
+        this.instrucciones.push(new Instruction('fmul.s', rd, rs1, rs2))
+    }
+
+    fdiv(rd, rs1, rs2) {
+        this.instrucciones.push(new Instruction('fdiv.s', rd, rs1, rs2))
+    }
+
+    fli(rd, inmediato) { //cargar un valor inmediato
+        this.instrucciones.push(new Instruction('fli.s', rd, inmediato))
+    }
+
+    fmv(rd, rs1) {
+        this.instrucciones.push(new Instruction('fmv.s', rd, rs1))
+    }
+
+    flw(rd, rs1, inmediato = 0) { //Leer
+        this.instrucciones.push(new Instruction('flw', rd, `${inmediato}(${rs1})`))
+    }
+
+    fsw(rs1, rs2, inmediato = 0) {//escribir
+        this.instrucciones.push(new Instruction('fsw', rs1, `${inmediato}(${rs2})`))
+    }
+
+    fcvtsw(rd, rs1) { //valor entero a un valor flotante
+        this.instrucciones.push(new Instruction('fcvt.s.w', rd, rs1))
+    }
+
+    printFloat() {
+        this.li(r.A7, 2)
+        this.ecall()
     }
 
 }
