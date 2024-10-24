@@ -214,12 +214,34 @@ export class CompilerVisitor extends BaseVisitor {
       if (!isIzqFloat) this.code.fcvtsw(f.FT1, r.T1);
       if (!isDerFloat) this.code.fcvtsw(f.FT0, r.T0);
 
+      /*
       switch (node.op) {
         case "*":
           this.code.fmul(f.FT0, f.FT1, f.FT0);
           break;
         case "/":
           this.code.fdiv(f.FT0, f.FT1, f.FT0);
+          break;
+      }
+      */
+      switch (node.op) {
+        case "==":
+          this.code.callBuiltin('equal');
+          break;
+        case "!=":
+          this.code.callBuiltin('notEqualInt');
+          break;
+        case "<":
+          this.code.callBuiltin('lessThanInt');
+          break;
+        case "<=":
+          this.code.callBuiltin('lessOrEqual');
+          break;
+        case ">":
+          this.code.callBuiltin('greaterThanInt');
+          break;
+        case ">=":
+          this.code.callBuiltin('greaterOrEqualInt');
           break;
       }
 
@@ -233,24 +255,20 @@ export class CompilerVisitor extends BaseVisitor {
         this.code.callBuiltin('equal');
         break;
       case "!=":
-        this.code.div(r.T0, r.T1, r.T0);
-        this.code.push(r.T0);
+        this.code.callBuiltin('notEqualInt');
         break;
       case "<":
-        this.code.rem(r.T0, r.T1, r.T0);
-        this.code.push(r.T0);
+        console.log("Esta entrando al menor");
+        this.code.callBuiltin('lessThanInt');
         break;
       case "<=":
         this.code.callBuiltin('lessOrEqual');
-        
         break;
       case ">":
-        this.code.div(r.T0, r.T1, r.T0);
-        this.code.push(r.T0);
+        this.code.callBuiltin('greaterThanInt');
         break;
       case ">=":
-        this.code.rem(r.T0, r.T1, r.T0);
-        this.code.push(r.T0);
+        this.code.callBuiltin('greaterOrEqualInt');
         break;
     }
     this.code.pushObject({ tipo: "boolean", length: 4 });

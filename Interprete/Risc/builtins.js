@@ -72,7 +72,7 @@ export const lessThanInt = (code) => {
     const trueLabel = code.getLabel()
     const endLabel = code.getLabel()
 
-    code.bge(r.T0, r.T1, trueLabel) 
+    code.bge(r.T1, r.T0, trueLabel) 
     code.li(r.T0, 1)                
     code.push(r.T0)
     code.j(endLabel)
@@ -163,6 +163,27 @@ export const greaterThanInt = (code) => {
 
 
 //float ------------------------------------------------------------------
+//MENOR o IGUAL para punto flotante
+/**
+ * 
+ * @param {Generador} code 
+ */
+export const lessOrEqualFloat = (code) => {
+
+    // F0 izq (float)
+    // F1 der (float)
+    const trueLabel = code.getLabel()
+    const endLabel = code.getLabel()
+
+    code.fge(r.F0, r.F1, trueLabel) // der >= izq (float comparison)
+    code.li(r.T0, 0)                // t0 = 0 (si es false, izq > der)
+    code.push(r.T0)
+    code.j(endLabel)
+    code.addLabel(trueLabel)
+    code.li(r.T0, 1)                // t0 = 1 (si es true, izq <= der)
+    code.push(r.T0)
+    code.addLabel(endLabel)
+}
 //Menor
 /**
  * 
@@ -264,6 +285,7 @@ export const greaterThanFloat = (code) => {
 export const builtins = {
     concatString,
     lessOrEqual,//menor o igual
+    lessOrEqualFloat,
     equal, //igual
     equalFloat,//igual fl
     notEqualInt, //no igual int 
@@ -274,8 +296,7 @@ export const builtins = {
     lessThanFloat, //menor que flotante,
     greaterOrEqualFloat,//mayor o igual f
     greaterOrEqualInt,//mayor o igual int
-
-    
+   
 }
 
      
