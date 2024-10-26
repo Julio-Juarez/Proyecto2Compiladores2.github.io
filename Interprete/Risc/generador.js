@@ -26,6 +26,7 @@ export class Generador {
     constructor() {
         this.instrucciones = []
         this.profundidad=0; // manejar entornos
+        this.instruccionesDeFunciones = []
         this.objectStack = []
         this._usedBuiltins = new Set()
         this._labelCounter = 0;// _ representa una llave privada en jacascript
@@ -113,6 +114,10 @@ export class Generador {
     li(rd, inmediato) {
         this.instrucciones.push(new Instruction('li', rd, inmediato))
     }
+    la(rd, label) {
+        this.instrucciones.push(new Instruction('la', rd, label))
+    }
+
 
     push(rd = r.T0) {
         this.addi(r.SP, r.SP, -4) // 4 bytes = 32 bits
@@ -132,6 +137,9 @@ export class Generador {
     }
     jal(label) {//salto incondicional: salta la etiqueta y cuando salte se puede llamar al pueto donde la llame 
         this.instrucciones.push(new Instruction('jal', label))
+    }
+    jalr(rd, rs1, imm) {
+        this.instrucciones.push(new Instruction('jalr', rd, rs1, imm))
     }
     j(label) {  // salto sin preguntar nada
         this.instrucciones.push(new Instruction('j', label))
@@ -183,6 +191,37 @@ export class Generador {
         if (rd !== r.A0) {
             this.pop(r.A0)
         }
+    }
+    printBooleano(rd = r.A0) {
+      // Si rd es diferente de r.A0, guardamos el valor original de r.A0 y copiamos rd en r.A0
+      if (rd !== r.A0) {
+        this.push(r.A0);
+        this.add(r.A0, rd, r.ZERO);
+      }
+
+      const printFalse = this.getLabel();
+      const endPrintBool = this.getLabel();
+      // Comparamos el valor en r.A0 para ver si es 0 (false) o 1 (true)
+      this.li(r.T0, 0); // Carga 0 en el registro temporal r.T0
+      this.beq(r.A0, r.T0, printFalse); // Si r.A0 es 0, salta a la etiqueta printFalse
+
+      // Imprime "true" si el valor en r.A0 es diferente de 0
+      this.li(r.A0, 1); // Carga la cadena "true" en r.A0
+      this.li(r.A7, 1); // Código de impresión de cadenas
+      this.ecall(); // Llama al sistema para imprimir "true"
+      this.j(endPrintBool); // Salta al final de la función
+
+      // Etiqueta para imprimir "false" si el valor en r.A0 es 0
+      this.addLabel(printFalse);
+      this.li(r.A0, 0); // Carga la cadena "false" en r.A0
+      this.li(r.A7, 1); // Código de impresión de cadenas
+      this.ecall(); // Llama al sistema para imprimir "false"
+
+      // Etiqueta final para el salto de salida
+      this.addLabel(endPrintBool);
+      if (rd !== r.A0) {
+        this.pop(r.A0); // Restaura el valor original de r.A0 desde la pila
+      }
     }
 
     endProgram() {
@@ -339,6 +378,13 @@ export class Generador {
         this.comment('Fin de mi progrma')
         this.endProgram()
         this.comment('bulting')
+
+
+        this.comment("Funciones Foraneas");
+        this.instruccionesDeFunciones.forEach(instruccion => this.instrucciones.push(instruccion))
+
+
+
         Array.from(this._usedBuiltins).forEach(builtinName => {
             this.addLabel(builtinName)
             builtins[builtinName](this)
@@ -398,6 +444,11 @@ main:
     printFloat() {
         this.li(r.A7, 2)
         this.ecall()
+    }
+
+    getFrameLocal(index) {
+        const frameRelativeLocal = this.objectStack.filter(obj => obj.tipo === 'local');
+        return frameRelativeLocal[index];
     }
 
 }
