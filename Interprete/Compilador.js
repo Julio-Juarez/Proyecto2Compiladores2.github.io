@@ -40,6 +40,8 @@ export class CompilerVisitor extends BaseVisitor {
     this.code.comment(`Primitivo String: ${node.valor.join("")}`);
     this.code.pushConstant({ tipo: node.tipo, valor: node.valor.join("") });
     this.code.comment(`Fin Primitivo: ${node.valor.join("")}`);
+    
+    return {tipo: node.tipo , valor:node.valor.join("")};
 
     //throw new Error('Metodo visitTerminalesExpCadena no implementado');
   }
@@ -877,6 +879,69 @@ export class CompilerVisitor extends BaseVisitor {
         this.code.popObject(r.A0);
         this.code.callBuiltin("parseFloat");
         this.code.pushObject({ tipo: "float", length: 4 });
+      },
+      toLowerCase: () => {
+        console.log("toLowerCase");
+        const cosaCambio=node.exp.accept(this);
+        let texto = cosaCambio.valor
+        let textoEnMinusculas = texto.toLowerCase();
+        
+
+        this.code.comment(`Primitivo String: ${textoEnMinusculas}`);
+        this.code.pushConstant({ tipo: cosaCambio.tipo, valor: textoEnMinusculas});
+        this.code.comment(`Fin Primitivo: ${textoEnMinusculas}`);
+    
+
+        
+        //this.code.popObject(r.A0);
+        //this.code.callBuiltin("parseFloat");
+        //this.code.pushObject({ tipo: "float", length: 4 });
+      },
+      toUpperCase: () => {
+        console.log("toUpperCase");
+        this.code.comment(" Inicio toUpperCase");
+        
+        const cosaCambio=node.exp.accept(this);
+        let texto = cosaCambio.valor
+        let textoEnMayusculas = texto.toUpperCase();
+        
+
+        this.code.comment(`Primitivo String: ${textoEnMayusculas}`);
+        this.code.pushConstant({ tipo: cosaCambio.tipo, valor: textoEnMayusculas});
+        this.code.comment(`Fin Primitivo: ${textoEnMayusculas}`);
+        
+        this.code.comment(" Fin toUpperCase");
+    
+
+        
+        //this.code.popObject(r.A0);
+        //this.code.callBuiltin("parseFloat");
+        //this.code.pushObject({ tipo: "float", length: 4 });
+      },
+      typeof: () => {
+        console.log("typeof");
+        this.code.comment(" Inicio typeof");
+        node.exp.accept(this);
+        const cosaCambio=this.code.getTopObject().tipo
+        
+        console.log("_________________s____________");
+        console.log(cosaCambio);
+        console.log(this.code.getTopObject().tipo);
+        console.log("_____________________________");
+  
+        
+
+        this.code.comment(`Primitivo String: ${cosaCambio}`);
+        this.code.pushConstant({ tipo: "string", valor: cosaCambio});
+        this.code.comment(`Fin Primitivo: ${cosaCambio}`);
+        
+        this.code.comment(" Fin typeof");
+    
+
+        
+        //this.code.popObject(r.A0);
+        //this.code.callBuiltin("parseFloat");
+        //this.code.pushObject({ tipo: "float", length: 4 });
       },
     };
 
