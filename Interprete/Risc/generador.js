@@ -177,6 +177,10 @@ export class Generador {
         }
 
     }
+    printChar() {
+        this.li(r.A7, 11)
+        this.ecall()
+    }
 
     printString(rd = r.A0) {
 
@@ -449,6 +453,18 @@ main:
     getFrameLocal(index) {
         const frameRelativeLocal = this.objectStack.filter(obj => obj.tipo === 'local');
         return frameRelativeLocal[index];
+    }
+
+    printStringLiteral(string) {
+        const stringArray = stringTo1ByteArray(string);
+        stringArray.pop(); // No queremos el 0 al final
+
+        this.comment(`Imprimiendo literal ${string}`);
+
+        stringArray.forEach((charCode) => {
+            this.li(r.A0, charCode);
+            this.printChar();
+        });
     }
 
 }

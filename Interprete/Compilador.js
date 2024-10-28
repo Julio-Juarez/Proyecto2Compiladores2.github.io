@@ -732,7 +732,7 @@ export class CompilerVisitor extends BaseVisitor {
     node.args.forEach((arg, index) => {
       arg.accept(this);
       this.code.popObject(r.T0);
-      this.code.addi(r.T1, r.SP, -4 * (3 + index)); // ! REVISAR
+      this.code.addi(r.T1, r.SP, -4 * (3 + index)); 
       this.code.sw(r.T0, r.T1);
     });
 
@@ -747,9 +747,8 @@ export class CompilerVisitor extends BaseVisitor {
     this.code.push(r.FP);
     this.code.addi(r.FP, r.T1, 0);
 
-    // colocar el SP al final del frame
-    // this.code.addi(r.SP, r.SP, -(this.functionMetada[nombreFuncion].frameSize - 4))
-    this.code.addi(r.SP, r.SP, -(node.args.length * 4)); // ! REVISAR
+  
+    this.code.addi(r.SP, r.SP, -(node.args.length * 4)); 
 
     // Saltar a la función
     this.code.j(nombreFuncion);
@@ -838,12 +837,12 @@ export class CompilerVisitor extends BaseVisitor {
 
     this.code.add(r.T0, r.ZERO, r.FP);
     this.code.lw(r.RA, r.T0);
-    this.code.jalr(r.ZERO, r.RA, 0);//!ver aqui
+    this.code.jalr(r.ZERO, r.RA, 0);
     this.code.comment(`Fin de declaracion de funcion ${node.id}`);
 
     // Limpiar metadatos
     for (let i = 0; i < paramSize + localSize; i++) {
-      this.code.objectStack.pop(); // ! aqui no retrocedemos el SP, hay que hacerlo más adelanto
+      this.code.objectStack.pop(); 
     }
 
     this.code.instrucciones = instruccionesDeMain;
@@ -859,132 +858,32 @@ export class CompilerVisitor extends BaseVisitor {
    */
   visitEnbebida(node) {
     const nombre = node.id;
-    const expresionEntrada = node.exp.accept(this);
+    console.log("+++++++++++++++++++++++++");
+    //console.log(node.exp);
+    console.log("+++++++++++++++++++++++++");
+    //const expresionEntrada = node.exp.accept(this);
 
-    console.log(nombre);
+    // ---- LLamadas a funcion embebidas
+    const embebidas = {
+      parseInt: () => {
+        node.exp.accept(this);
+        this.code.popObject(r.A0);
+        this.code.callBuiltin("parseInt");
+        this.code.pushObject({ tipo: "int", length: 4 });
+      },
+      parsefloat: () => {
+        console.log("hola");
+        node.exp.accept(this);
+        this.code.popObject(r.A0);
+        this.code.callBuiltin("parseFloat");
+        this.code.pushObject({ tipo: "float", length: 4 });
+      },
+    };
 
-    let valorConvertido;
-    console.log(expresionEntrada);
-    if (nombre === "parseInt") {
-      console.log("Es parseInt");
-
-      if (expresionEntrada.tipo === "string") {
-        console.log("El tipo es una cadena.");
-        valorConvertido = parseInt(expresionEntrada.valor, 10);
-      } else if (expresionEntrada.tipo === "int") {
-        console.log("El tipo es un entero.");
-        valorConvertido = expresionEntrada.valor; // No es necesario convertir, ya es un entero
-      } else if (expresionEntrada.tipo === "char") {
-        console.log("El tipo es un carácter.");
-        valorConvertido = expresionEntrada.valor.charCodeAt(0); // Convertir el carácter a su código ASCII
-      } else if (expresionEntrada.tipo === "boolean") {
-        console.log("El tipo es un booleano.");
-        valorConvertido = expresionEntrada.valor ? 1 : 0; // Convertir true/false a 1/0
-      } else if (expresionEntrada.tipo === "float") {
-        console.log("El tipo es un número flotante.");
-        valorConvertido = Math.floor(expresionEntrada.valor); // Convertir el float a int (redondeo hacia abajo)
-      } else {
-        console.log("Tipo no reconocido.");
-        return;
-      }
-
-      console.log({ tipo: "int", valor: valorConvertido });
-      return { tipo: "int", valor: valorConvertido };
-    } else if (nombre === "parsefloat") {
-      console.log("Es parseFloat");
-      if (expresionEntrada.tipo === "string") {
-        console.log("El tipo es una cadena.");
-        valorConvertido = parseFloat(expresionEntrada.valor); // Convertir cadena a float
-      } else if (expresionEntrada.tipo === "int") {
-        console.log("El tipo es un entero.");
-        valorConvertido = parseFloat(expresionEntrada.valor); // Convertir entero a float
-      } else if (expresionEntrada.tipo === "char") {
-        console.log("El tipo es un carácter.");
-        valorConvertido = expresionEntrada.valor.charCodeAt(0); // Obtener código ASCII del carácter
-        valorConvertido = parseFloat(valorConvertido); // Convertir código ASCII a float
-      } else if (expresionEntrada.tipo === "boolean") {
-        console.log("El tipo es un booleano.");
-        valorConvertido = expresionEntrada.valor ? 1.0 : 0.0; // Convertir booleano a float (1.0 o 0.0)
-      } else if (expresionEntrada.tipo === "float") {
-        console.log("El tipo es un número flotante.");
-        valorConvertido = expresionEntrada.valor; // Ya es un float
-      } else {
-        console.log("Tipo no reconocido.");
-        return;
-      }
-
-      return { tipo: "float", valor: valorConvertido };
-    } else if (nombre === "toString") {
-      console.log("Es toString");
-      if (expresionEntrada.tipo === "string") {
-        console.log("El tipo es una cadena.");
-        valorConvertido = expresionEntrada.valor; // Ya es una cadena
-      } else if (expresionEntrada.tipo === "int") {
-        console.log("El tipo es un entero.");
-        valorConvertido = expresionEntrada.valor.toString(); // Convertir entero a cadena
-      } else if (expresionEntrada.tipo === "char") {
-        console.log("El tipo es un carácter.");
-        valorConvertido = expresionEntrada.valor.toString(); // Convertir carácter a cadena (ya es una cadena)
-      } else if (expresionEntrada.tipo === "boolean") {
-        console.log("El tipo es un booleano.");
-        valorConvertido = expresionEntrada.valor.toString(); // Convertir booleano a cadena ("true" o "false")
-      } else if (expresionEntrada.tipo === "float") {
-        console.log("El tipo es un número flotante.");
-        valorConvertido = expresionEntrada.valor.toString(); // Convertir flotante a cadena
-      } else {
-        console.log("Tipo no reconocido.");
-        return;
-      }
-
-      return { tipo: "string", valor: valorConvertido };
-    } else if (nombre === "toLowerCase") {
-      console.log("Es toLowerCase");
-      if (expresionEntrada.tipo === "string") {
-        console.log("El tipo es una cadena.");
-        return { tipo: "string", valor: expresionEntrada.valor.toLowerCase() };
-      } else {
-        console.log(
-          "El tipo no es una cadena, no se puede convertir a minúsculas."
-        );
-        return;
-      }
-    } else if (nombre === "toUpperCase") {
-      console.log("Es toUpperCase");
-      if (expresionEntrada.tipo === "string") {
-        console.log("El tipo es una cadena.");
-        console.log(expresionEntrada.valor);
-        return { tipo: "string", valor: expresionEntrada.valor.toUpperCase() };
-      } else {
-        console.log(
-          "El tipo no es una cadena, no se puede convertir a mayúsculas."
-        );
-        return;
-      }
-    } else if (nombre === "typeof") {
-      console.log("Es typeof");
-      if (expresionEntrada.tipo === "string") {
-        console.log("El tipo es una cadena.");
-        valorConvertido = expresionEntrada.tipo;
-      } else if (expresionEntrada.tipo === "int") {
-        console.log("El tipo es un entero.");
-        valorConvertido = expresionEntrada.tipo;
-      } else if (expresionEntrada.tipo === "char") {
-        console.log("El tipo es un carácter.");
-        valorConvertido = expresionEntrada.tipo;
-      } else if (expresionEntrada.tipo === "boolean") {
-        console.log("El tipo es un booleano.");
-        valorConvertido = expresionEntrada.tipo;
-      } else if (expresionEntrada.tipo === "float") {
-        console.log("El tipo es un número flotante.");
-        valorConvertido = expresionEntrada.tipo;
-      } else {
-        console.log("Tipo no reconocido.");
-        return;
-      }
-
-      return { tipo: "string", valor: valorConvertido };
-    } else {
-      console.log("No coincide con ninguna cadena");
+    if (embebidas[nombre]) {
+      console.log("hola2");
+      embebidas[nombre]();
+      return;
     }
 
     //throw new Error('Metodo visitEnbebida no implementado');
