@@ -6,9 +6,9 @@ import { BaseVisitor } from "../GeneradorDeArchivos/visitor.js";
 export class FrameVisitor extends BaseVisitor {
   constructor(baseOffset) {
     super();
-    this.frame= [];
-    this.localSize=0;
-    this.baseOffset=baseOffset;
+    this.frame= []; //guarda un ministack 
+    this.localSize=0;//cuantas variables requiere ese frame
+    this.baseOffset=baseOffset;//cuantas cosas tiene
     
 
   }
@@ -36,7 +36,7 @@ export class FrameVisitor extends BaseVisitor {
    * @type {BaseVisitor['visitDeclaracionVariable']}
    */
   visitDeclaracionVariable(node) {
-    console.log("declaracion con valor");
+    console.log("Frame declaracion con valor");
     this.frame.push({
       id:node.id,
       offset:this.baseOffset + this.localSize,

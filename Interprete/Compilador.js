@@ -13,6 +13,7 @@ export class CompilerVisitor extends BaseVisitor {
 
     //para funciones
     this.functionMetada={}
+
     this.insideFunction=false;
     this.frameDclIndex = 0;//que indice tiene el fren adentro de las variables locales
     this.returnLabel=null;// igual que el continuo
@@ -125,7 +126,8 @@ export class CompilerVisitor extends BaseVisitor {
     this.code.comment("Print");
     node.exp.accept(this);
 
-    console.log(this.code.getTopObject().tipo);
+
+    console.log(this.code.getTopObject());
 
     const isFloat = this.code.getTopObject().tipo == "float";
     const object = this.code.popObject(isFloat ? f.FA0 : r.A0);
@@ -715,12 +717,17 @@ export class CompilerVisitor extends BaseVisitor {
     console.log("Llamada de Funcion");
     //if (!(node.callee instanceof ReferenciaVariable)) return;
 
+    console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+    console.log(node.callee.id);
+    console.log(node.callee);
+    console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
     const nombreFuncion = node.callee.id;
 
     this.code.comment(`Llamada a funcion ${nombreFuncion}`);
 
     const etiquetaRetornoLlamada = this.code.getLabel();
 
+   
     // 1. Guardar los argumentos
     node.args.forEach((arg, index) => {
       arg.accept(this);
@@ -763,7 +770,7 @@ export class CompilerVisitor extends BaseVisitor {
 
     this.code.push(r.A0);
     this.code.pushObject({
-      type: this.functionMetada[nombreFuncion].returnType,
+      tipo: this.functionMetada[nombreFuncion].returnType,
       length: 4,
     });
 
@@ -780,7 +787,7 @@ export class CompilerVisitor extends BaseVisitor {
 
     const baseSize = 2;
 
-    const paramSize = node.params.length;
+    const paramSize = node.params.length; //saber cuantos parametros tiene la funcion
     const frameVisitor = new FrameVisitor(baseSize + paramSize);
     node.bloque.accept(frameVisitor);
 
@@ -807,7 +814,7 @@ export class CompilerVisitor extends BaseVisitor {
       });
     });
 
-    localFrame.forEach((variableLocal) => {
+    localFrame.forEach(variableLocal => {
       this.code.pushObject({
         ...variableLocal,
         //id: variableLocal.id,
@@ -831,7 +838,7 @@ export class CompilerVisitor extends BaseVisitor {
 
     this.code.add(r.T0, r.ZERO, r.FP);
     this.code.lw(r.RA, r.T0);
-    this.code.jalr(r.ZERO, r.RA, 0);
+    this.code.jalr(r.ZERO, r.RA, 0);//!ver aqui
     this.code.comment(`Fin de declaracion de funcion ${node.id}`);
 
     // Limpiar metadatos

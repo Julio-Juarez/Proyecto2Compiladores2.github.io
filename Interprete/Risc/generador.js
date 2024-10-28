@@ -26,7 +26,7 @@ export class Generador {
     constructor() {
         this.instrucciones = []
         this.profundidad=0; // manejar entornos
-        this.instruccionesDeFunciones = []
+        this.instruccionesDeFunciones = []//funciones----
         this.objectStack = []
         this._usedBuiltins = new Set()
         this._labelCounter = 0;// _ representa una llave privada en jacascript
