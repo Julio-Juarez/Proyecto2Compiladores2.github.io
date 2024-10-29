@@ -378,6 +378,15 @@ export class Generador {
         throw new Error(`Variable ${id} not found`);
     }
 
+    SaltodeLinea(){
+        this.comment("Hola Salto");
+        this.li(r.A0,10);
+        this.li(r.A7, 11);
+        this.ecall();
+        this.comment("adios Salto");
+
+    }
+
     toString() {
         this.comment('Fin de mi progrma')
         this.endProgram()

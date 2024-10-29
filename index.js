@@ -26,7 +26,7 @@ btn.addEventListener('click', () => {
     
     const codigoFuente = EditorMonaco.getValue();
 
-    try{
+    
     const sentencias = parse(codigoFuente)
     const CompSentencias = parse(codigoFuente)
     //ast.innerHTML = JSON.stringify(sentencias, null, 2)
@@ -35,9 +35,7 @@ btn.addEventListener('click', () => {
     const interprete = new InterpreterVisitorProyecto();
     const compilador = new CompilerVisitor();
 
-    for (const sentencia of sentencias) {
-         sentencia.accept(interprete)
-     }
+    //
      console.log("--------------------------------------------");
     console.log(CompSentencias);
     console.log("----------------------------------------------");
@@ -49,7 +47,14 @@ btn.addEventListener('click', () => {
     //sentencias.forEach(sentencia => sentencia.accept(interprete))
 
     let texto = compilador.code.toString();
+   
     salida.innerHTML = texto; //interprete.SalidaInterprete
+     
+
+    try{
+        for (const sentencia of sentencias) {
+            sentencia.accept(interprete)
+        }
     let tabla=interprete.tabla;
     let tablaHTML = `
             <table border="1">
@@ -89,6 +94,7 @@ btn.addEventListener('click', () => {
     } catch (error) {
 
         console.log(error);
+        
         const linea=error.location.start.line
         const column=error.location.start.column
       
